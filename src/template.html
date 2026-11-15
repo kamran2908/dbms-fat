@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DBMS Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Zilla+Slab:wght@500;700&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E6DEC9;--surface:#F3ECDB;--ink:#2A2118;--mute:#6B5D49;--line:#BDAF92;--accent:#8A2D1C;--on-accent:#F3ECDB;--mark:#E8C766;--mark-ink:#2A2118;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1D1710;--surface:#2A2218;--ink:#EBE0C8;--mute:#A89B82;--line:#4A3E2D;--accent:#D9A441;--on-accent:#1D1710;--mark:#7A5A12;--mark-ink:#fff;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1D1710;--surface:#2A2218;--ink:#EBE0C8;--mute:#A89B82;--line:#4A3E2D;--accent:#D9A441;--on-accent:#1D1710;--mark:#7A5A12;--mark-ink:#fff;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.65 "Literata",Georgia,serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+a{color:inherit}button,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.ui{font-family:"Special Elite","Courier New",monospace}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;display:flex;gap:.8rem 1rem;align-items:center;flex-wrap:wrap;padding:.7rem clamp(1rem,4vw,2.5rem);background:var(--bg);border-bottom:1px solid var(--line);font-family:"Special Elite","Courier New",monospace}
+.brand{font-weight:700;font-size:1.35rem;line-height:1;text-decoration:none;letter-spacing:-.01em;margin-right:auto}
+nav.tabs{display:flex;gap:.25rem}
+nav.tabs a{font-weight:500;font-size:.95rem;padding:.45rem .85rem;border-radius:3px;text-decoration:none;color:var(--mute)}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+nav.tabs small{margin-left:.3rem;font-size:.8rem}
+.search{flex:1 1 260px;max-width:460px;display:flex;align-items:center;gap:.5rem;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:.1rem .9rem}
+.search input{flex:1;min-width:0;border:0;background:none;color:inherit;font:500 1rem "Special Elite","Courier New",monospace;padding:.5rem 0}
+.search input:focus{outline:none}.search:focus-within{outline:3px solid var(--accent)}
+kbd{font:500 .75rem "Special Elite","Courier New",monospace;border:1px solid var(--line);border-radius:5px;padding:.05rem .4rem;color:var(--mute)}
+main{max-width:1120px;margin:0 auto;padding:1.5rem clamp(1rem,4vw,2.5rem) 4rem}
+h1,h2,h3{font-family:"Zilla Slab",Georgia,serif;letter-spacing:-.015em;margin:0}
+h1{font-size:clamp(2.2rem,6vw,4rem);line-height:1;max-width:15ch;margin:1.5rem 0 .8rem}
+h2.vt{font-size:clamp(1.6rem,3.6vw,2.3rem);line-height:1.1}
+.lede{color:var(--mute);max-width:54ch;margin:0 0 1.8rem}
+.sub{color:var(--mute);margin:.2rem 0 .7rem}
+.crumb{display:flex;gap:.5rem;font:500 .92rem "Special Elite","Courier New",monospace;color:var(--mute);margin-bottom:.8rem}
+.crumb a{text-decoration:none;border-bottom:1px solid var(--line)}.crumb span::before{content:"/";margin-right:.5rem}
+/* shelf */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+.big{display:flex;flex-direction:column;gap:.5rem;text-decoration:none;border-radius:3px;padding:1.6rem;min-height:210px;color:#F1E8D2;background:var(--c);box-shadow:inset -6px 0 0 rgba(0,0,0,.25)}
+.big b{font:700 2.2rem/1 "Zilla Slab",serif}.big span{max-width:26ch;opacity:.9}.big em{margin-top:auto;font-style:normal}
+.badge{display:grid;place-items:center;width:2.6rem;height:2.6rem;background:var(--c,#7A2A22);color:#F1E8D2;font:700 1.25rem "Zilla Slab",serif;border-radius:2px;flex:none}
+.shelf{display:flex;align-items:flex-end;gap:4px;height:410px;padding:0 12px;margin:1.6rem 0 .6rem;border-bottom:16px solid #5A3F25;overflow-x:auto;overflow-y:hidden}
+.book{--w:64px;flex:0 0 var(--w);width:auto;height:var(--ht);display:flex;overflow:hidden;background:var(--c);color:#F1E8D2;text-decoration:none;border-radius:2px 2px 0 0;box-shadow:inset -4px 0 0 rgba(0,0,0,.28),inset 3px 0 0 rgba(255,255,255,.08);transition:flex-basis .35s}
+.spine{flex:none;width:var(--w);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:.8rem 0 .7rem}
+.spine .no{background:#F1E8D2;color:#2A2118;padding:.05rem .4rem;font:700 1rem "Zilla Slab",serif;transform:rotate(-3deg)}
+.spine .tt{writing-mode:vertical-rl;font-size:1.02rem;line-height:1.15;letter-spacing:.03em;max-height:calc(100% - 4.5rem);overflow:hidden}
+.spine .ct{font-size:.85rem;opacity:.75}
+.cover{flex:none;width:292px;display:flex;flex-direction:column;gap:.3rem;padding:1rem 1rem 1rem 1.1rem;background:var(--surface);color:var(--ink);border-left:4px solid rgba(0,0,0,.45);opacity:0;transition:opacity .15s}
+.book:hover,.book:focus-visible,.book.on{flex-basis:calc(var(--w) + 292px)}
+.book:hover .cover,.book:focus-visible .cover,.book.on .cover{opacity:1;transition:opacity .25s .15s}
+.cover h3{font-size:1.25rem;line-height:1.15}.cover p{margin:0;font-size:.92rem;color:var(--mute)}
+.cover ul{list-style:none;padding:0;margin:.2rem 0;font-size:.88rem}.cover li{display:flex;justify-content:space-between;gap:.6rem;border-bottom:1px dotted var(--line);padding:.12rem 0}
+.cover .yr{font:700 2.6rem/1 "Zilla Slab",serif;color:var(--c)}
+.cover .open{margin-top:.4rem;font-weight:700;border-bottom:2px solid var(--c);align-self:flex-start}
+.cover .bar{margin-top:.5rem}
+.bar{height:6px;background:var(--line);border-radius:0;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--accent)}
+.hint{color:var(--mute);font-size:.9rem;margin:.2rem 0 0}
+.mh{display:flex;gap:1rem;align-items:center;margin:.3rem 0 1rem}
+#prog{max-width:340px}#prog span{font:500 .88rem "Special Elite","Courier New",monospace;color:var(--mute)}
+/* controls */
+.pills,.filters{display:flex;gap:.45rem;flex-wrap:wrap;margin:.6rem 0}
+.chip{font:500 .92rem "Special Elite","Courier New",monospace;padding:.4rem .85rem;border:1px solid var(--line);border-radius:3px;background:var(--surface);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chip small{opacity:.7;margin-left:.35rem}
+select.chip{border-radius:3px;padding-right:.5rem}
+h3.th{font-size:1.2rem;margin:1.8rem 0 .7rem;display:flex;gap:.7rem;align-items:baseline;border-top:1px solid var(--line);padding-top:1rem}
+h3.th span{color:var(--mute);font-weight:500;font-size:.95rem}
+/* question */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:1rem 1.2rem;margin:0 0 .9rem;scroll-margin-top:90px}
+.q.done{opacity:.62}
+.q header{display:flex;flex-wrap:wrap;gap:.2rem .9rem;align-items:baseline;font:500 .9rem "Special Elite","Courier New",monospace;color:var(--mute);margin-bottom:.5rem}
+.q header b{color:var(--ink);font-weight:700}.q header .mk{margin-left:auto}
+.q .body{white-space:pre-wrap;max-width:74ch;overflow-wrap:anywhere}
+.q:not(.open) .body{max-height:5.4em;overflow:hidden;cursor:pointer;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.q:not(.open) img{display:none}
+.q img{max-width:100%;height:auto;border-radius:8px;margin-top:.8rem;background:#fff;border:1px solid var(--line)}
+.q footer{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between;align-items:center;margin-top:.8rem}
+.tags,.acts{display:flex;flex-wrap:wrap;gap:.4rem}
+.tags a{font:500 .82rem "Special Elite","Courier New",monospace;padding:.15rem .6rem;border:1px solid var(--line);border-radius:3px;text-decoration:none;color:var(--mute)}
+.tags a:hover{color:var(--ink);border-color:var(--ink)}
+.acts button{font:500 .86rem "Special Elite","Courier New",monospace;padding:.25rem .75rem;border:1px solid var(--line);border-radius:3px;background:none;cursor:pointer}
+.acts button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.q.short [data-act="open"]{display:none}
+mark{background:var(--mark);color:var(--mark-ink);border-radius:3px;padding:0 .1em}
+.empty{padding:1.5rem;border:1px dashed var(--line);border-radius:3px;color:var(--mute);margin-top:1rem}
+footer.note{max-width:1120px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem) 3rem;color:var(--mute);font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#home">DBMS Vault</a>
+  <nav class="tabs" aria-label="Sections"><a href="#modules" data-t="modules">Modules</a><a href="#papers" data-t="papers">Papers</a><a href="#saved" data-t="saved">Saved<small id="sv"></small></a></nav>
+  <label class="search"><input id="q" type="search" placeholder="Search all questions" autocomplete="off" aria-label="Search all questions"><kbd>Ctrl K</kbd></label>
+</header>
+<main id="view" aria-live="polite"></main>
+<footer class="note">Question text is transcribed from the past FAT papers. Where a diagram or table can’t be carried as text, it appears as a cropped picture. Check wording against your own copy before relying on it for exact values. Your saved and done marks stay in this browser only.</footer>
+<script>
+const D=/*DATA*/null;
+const $=s=>document.querySelector(s),M=D.modules,Q=D.questions,P=Object.fromEntries(D.papers.map(p=>[p.id,p])),IX=Object.fromEntries(D.papers.map((p,i)=>[p.id,i]));
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rx=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const H=[196,168,148,38,18,338,282,248],YH={2023:200,2024:36,2025:300};
+const byMod=n=>Q.filter(q=>q.tags.some(t=>t[0]===n)),byPaper=id=>Q.filter(q=>q.paper===id);
+const pl=(n,w)=>`${n} ${w}${n==1?'':'s'}`,yr=q=>P[q.paper].year;
+const S={star:new Set(),done:new Set()};
+try{const j=JSON.parse(localStorage.getItem('dbmsvault')||'{}');S.star=new Set(j.star||[]);S.done=new Set(j.done||[])}catch(e){}
+const save=()=>{try{localStorage.setItem('dbmsvault',JSON.stringify({star:[...S.star],done:[...S.done]}))}catch(e){}};
+const CMP={new:(a,b)=>IX[b.paper]-IX[a.paper],old:(a,b)=>IX[a.paper]-IX[b.paper],marks:(a,b)=>b.marks-a.marks||IX[b.paper]-IX[a.paper]};
+let UI={},view=()=>{};
+const reset=()=>UI={topic:'all',year:'',sort:'new',hide:false,pm:'',sm:'',sy:''};
+const prog=(qs)=>{const d=qs.filter(q=>S.done.has(q.id)).length;return[d,qs.length,qs.length?d/qs.length*100:0]};
+
+function card(q,hl=x=>x){
+  const p=P[q.paper],short=q.text.length<230&&!q.fig;
+  return `<article class="q${S.done.has(q.id)?' done':''}${short?' short open':''}" data-id="${esc(q.id)}" data-qn="${esc(q.qno)}">
+  <header><b>Question ${q.qno}</b><span>${p.term}</span><span>Slot ${p.slot}</span><span class="mk">${q.marks} marks</span></header>
+  <div class="body" data-act="open" tabindex="0" role="button" aria-label="Show or hide full question">${hl(esc(q.text))}</div>
+  ${q.fig?`<img alt="Diagram or table from question ${q.qno}, ${p.term}" src="${q.fig}">`:''}
+  <footer><div class="tags"><a href="#paper-${q.paper}">Open paper</a>${q.tags.map(t=>`<a href="#module-${t[0]}">Module ${t[0]}: ${esc(t[1])}</a>`).join('')}</div>
+  <div class="acts"><button data-act="open">Show full question</button><button data-act="star" aria-pressed="${S.star.has(q.id)}">Save</button><button data-act="done" aria-pressed="${S.done.has(q.id)}">Done</button></div></footer></article>`;
+}
+const pills=(items,k,cur)=>`<div class="pills" role="group">${items.map(([v,l,n])=>`<button class="chip" data-act="pill" data-k="${k}" data-v="${esc(String(v))}" aria-pressed="${cur===String(v)}">${esc(l)}${n!=null?`<small>${n}</small>`:''}</button>`).join('')}</div>`;
+const sel=(k,opts,cur,lab)=>`<select class="chip" data-f="${k}" aria-label="${lab}">${opts.map(([v,l])=>`<option value="${v}"${String(cur)===String(v)?' selected':''}>${l}</option>`).join('')}</select>`;
+const progHTML=(k,v)=>`<div id="prog" data-k="${k}" data-v="${v}"><div class="bar"><i></i></div><span></span></div>`;
+function stats(){
+  $('#sv').textContent=S.star.size||'';
+  const p=$('#prog');if(!p)return;
+  const [d,n,pc]=prog(p.dataset.k==='m'?byMod(+p.dataset.v):byPaper(p.dataset.v));
+  p.querySelector('i').style.width=pc+'%';p.querySelector('span').textContent=`${d} of ${n} done`;
+}
+
+/* ---------- views ---------- */
+const SP=['#7A2A22','#2F4A3A','#8F6A12','#3E5C76','#9A4A24','#5B3A4E','#5E5F28','#5E5444'],HT=[350,312,372,330,348,300,340,322],WD=[66,58,72,62,68,56,70,60];
+const shelf=items=>`<div class="shelf" role="list">${items.map((b,i)=>`<a class="book" role="listitem" href="${b.href}" aria-label="${esc(b.label)}" style="--c:${SP[(i+(b.off||0))%8]};--ht:${HT[(i+(b.off||0))%8]}px;--w:${WD[(i*3+(b.off||0))%8]}px"><div class="spine">${b.spine}</div><div class="cover">${b.cover}</div></a>`).join('')}</div><p class="hint">Hover or focus a book to open it. On a touch screen, tap once to open, tap again to go in.</p>`;
+const done=qs=>{const [d,n,pc]=prog(qs);return `<div class="bar"><i style="width:${pc}%"></i></div><p>${d} of ${n} done</p>`};
+function home(){
+  view=()=>{$('#view').innerHTML=`<h1>Database Systems, past questions in one place.</h1>
+  <p class="lede">${Q.length} questions from ${D.papers.length} final assessment tests. Study by syllabus module or work through a paper from start to finish.</p>
+  <div class="two"><a class="big" href="#modules" style="--c:#7A2A22"><b>Modules</b><span>Questions grouped by syllabus module, then by topic.</span><em>${M.length} modules</em></a>
+  <a class="big" href="#papers" style="--c:#2F4A3A"><b>Papers</b><span>Past FAT papers by year and slot, in exam order.</span><em>${D.papers.length} papers, 2023 to 2025</em></a></div>
+  <div class="filters"><button class="chip" data-act="rand">Show me a random question</button><a class="chip" href="#saved" style="text-decoration:none">Saved questions</a></div>`;stats()};
+}
+function modules(){
+  view=()=>{$('#view').innerHTML=`<h2 class="vt">Modules</h2><p class="sub">Each book is a syllabus module. Open one to study its questions topic by topic.</p>`+shelf(M.map(m=>{
+   const qs=byMod(m.n),tp=m.topics.map(t=>[t,qs.filter(q=>q.tags.some(x=>x[0]===m.n&&x[1]===t)).length]).filter(x=>x[1]);
+   return {href:'#module-'+m.n,label:`Module ${m.n}: ${m.title}`,spine:`<span class="no">${m.n}</span><span class="tt">${esc(m.title)}</span><span class="ct">${qs.length}</span>`,
+   cover:`<h3>Module ${m.n}: ${esc(m.title)}</h3><p>${qs.length?pl(qs.length,'question')+', '+pl(tp.length,'topic'):'No questions yet'}</p>${tp.length?`<ul>${tp.map(x=>`<li>${esc(x[0])}<b>${x[1]}</b></li>`).join('')}</ul>`:`<p>The syllabus lists no topics here.</p>`}${done(qs)}<span class="open">Open module</span>`}}));stats()};
+}
+function papers(){
+  view=()=>{$('#view').innerHTML=`<h2 class="vt">Papers</h2><p class="sub">Each book is one past paper, oldest on the left. Open one to read its questions in order.</p>`+shelf(D.papers.map(p=>{
+   const qs=byPaper(p.id),mk=qs.reduce((a,q)=>a+q.marks,0),ms=M.filter(m=>qs.some(q=>q.tags.some(t=>t[0]===m.n))).map(m=>m.n).join(', ');
+   return {off:2,href:'#paper-'+p.id,label:`${p.term}, slot ${p.slot}`,spine:`<span class="no">${p.year}</span><span class="tt">${p.term}, slot ${p.slot}</span><span class="ct">${p.n}</span>`,
+   cover:`<div class="yr">${p.year}</div><h3>${p.term}</h3><p>Slot ${p.slot}</p><p>${pl(p.n,'question')}, ${mk} marks</p><p>Covers modules ${ms}</p>${done(qs)}<span class="open">Open paper</span>`}}));stats()};
+}
+function moduleView(n){
+  const m=M[n-1],all=byMod(n),has=t=>all.filter(q=>q.tags.some(x=>x[0]===n&&x[1]===t)).length,topics=m.topics.filter(has),years=[...new Set(all.map(yr))].sort();
+  view=()=>{
+    const qs=all.filter(q=>(!UI.year||yr(q)==UI.year)&&!(UI.hide&&S.done.has(q.id)));
+    const show=UI.topic==='all'?topics:[UI.topic];
+    const body=show.map(t=>{const l=qs.filter(q=>q.tags.some(x=>x[0]===n&&x[1]===t)).sort(CMP[UI.sort]);return l.length?`<h3 class="th">${esc(t)}<span>${pl(l.length,'question')}</span></h3>`+l.map(q=>card(q)).join(''):''}).join('');
+    $('#view').innerHTML=`<nav class="crumb" aria-label="Breadcrumb"><a href="#modules">Modules</a><span>Module ${n}</span></nav>
+    <div class="mh" style="--c:${SP[n-1]}"><span class="badge">${n}</span><div><h2 class="vt">${esc(m.title)}</h2><p class="sub">${pl(all.length,'question')} across ${pl(topics.length,'topic')}</p>${progHTML('m',n)}</div></div>`+
+    (all.length?pills([['all','All topics',all.length],...topics.map(t=>[t,t,has(t)])],'topic',UI.topic)+
+    `<div class="filters">${sel('year',[['','All years'],...years.map(y=>[y,y])],UI.year,'Year')}${sel('sort',[['new','Newest first'],['old','Oldest first'],['marks','Most marks first']],UI.sort,'Sort')}
+    <button class="chip" data-act="hide" aria-pressed="${UI.hide}">Hide done</button><button class="chip" data-act="expand">Expand all</button></div>`+(body||`<div class="empty">No questions match these filters.</div>`)
+    :`<div class="empty">No past questions for this module yet. The syllabus lists no topics for it.</div>`);stats()};
+}
+function paperView(id){
+  const p=P[id];if(!p){papers();return}
+  const all=byPaper(id),mods=M.filter(m=>all.some(q=>q.tags.some(t=>t[0]===m.n))),marks=all.reduce((a,q)=>a+q.marks,0);
+  view=()=>{
+    const qs=all.filter(q=>(!UI.pm||q.tags.some(t=>t[0]==UI.pm))&&!(UI.hide&&S.done.has(q.id)));
+    $('#view').innerHTML=`<nav class="crumb" aria-label="Breadcrumb"><a href="#papers">Papers</a><span>${p.term}, slot ${p.slot}</span></nav>
+    <div class="mh" style="--h:${YH[p.year]}"><div><h2 class="vt">${p.term}, slot ${p.slot}</h2><p class="sub">${pl(all.length,'question')}, ${marks} marks in total</p>${progHTML('p',id)}</div></div>
+    <div class="pills" role="group" aria-label="Jump to question">${all.map(q=>`<button class="chip" data-act="jump" data-v="${esc(q.qno)}">Q${q.qno}</button>`).join('')}</div>
+    ${pills([['','All modules',all.length],...mods.map(m=>[m.n,'Module '+m.n,all.filter(q=>q.tags.some(t=>t[0]===m.n)).length])],'pm',String(UI.pm))}
+    <div class="filters"><button class="chip" data-act="hide" aria-pressed="${UI.hide}">Hide done</button><button class="chip" data-act="expand">Expand all</button></div>`+
+    (qs.map(q=>card(q)).join('')||`<div class="empty">No questions match these filters.</div>`);stats()};
+}
+function saved(){
+  view=()=>{const qs=Q.filter(q=>S.star.has(q.id)).sort(CMP.new);
+  $('#view').innerHTML=`<h2 class="vt">Saved questions</h2><p class="sub">Questions you marked with Save, kept in this browser.</p>`+(qs.map(q=>card(q)).join('')||`<div class="empty">Nothing saved yet. Use the Save button on any question to collect it here.</div>`);stats()};
+}
+function random(){
+  view=()=>{const pool=Q.filter(q=>!S.done.has(q.id)),q=pool[Math.floor(Math.random()*pool.length)]||Q[0];
+  $('#view').innerHTML=`<nav class="crumb"><a href="#home">Home</a><span>Random question</span></nav><h2 class="vt">Random question</h2><div style="height:1rem"></div>${card(q)}<button class="chip" data-act="again">Another one</button>`;stats()};
+}
+
+/* ---------- search ---------- */
+const hay=Q.map(q=>({q,t:(q.text+' '+q.tags.map(t=>t[1]).join(' ')+' '+P[q.paper].term+' '+P[q.paper].slot).toLowerCase()}));
+function search(){
+  const raw=$('#q').value.trim();if(!raw){route();return}
+  const toks=raw.toLowerCase().split(/\s+/).filter(Boolean),re=new RegExp('('+toks.filter(x=>!['amp','lt','gt','quot'].includes(x)).map(rx).concat(['(?!)']).join('|')+')','gi');
+  const hit=hay.filter(h=>toks.every(t=>h.t.includes(t))&&(!UI.sm||h.q.tags.some(t=>t[0]==UI.sm))&&(!UI.sy||yr(h.q)==UI.sy))
+    .map(h=>({q:h.q,s:toks.reduce((a,t)=>a+h.t.split(t).length-1+(h.q.tags.some(x=>x[1].toLowerCase().includes(t))?3:0),0)})).sort((a,b)=>b.s-a.s).slice(0,60);
+  $('#view').innerHTML=`<h2 class="vt">${hit.length?hit.length+(hit.length==60?'+':'')+' result'+(hit.length==1?'':'s'):'No results'} for “${esc(raw)}”</h2>
+  <div class="filters">${sel('sm',[['','All modules'],...M.map(m=>[m.n,'Module '+m.n])],UI.sm,'Module')}${sel('sy',[['','All years'],...[...new Set(D.papers.map(p=>p.year))].map(y=>[y,y])],UI.sy,'Year')}</div>`+
+  (hit.length?hit.map(h=>card(h.q,s=>s.replace(re,'<mark>$1</mark>'))).join(''):`<div class="empty">Nothing matches. Try fewer words, or a topic such as “deadlock” or “normal form”.</div>`);
+  stats();
+}
+$('#q').addEventListener('input',()=>{view=search;search()});
+addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#q').focus();$('#q').select()}
+  if(e.key==='Escape'&&document.activeElement===$('#q')){$('#q').value='';route()}
+});
+
+/* ---------- events and routing ---------- */
+$('#view').addEventListener('click',e=>{
+  const bk=e.target.closest('.book');
+  if(bk&&matchMedia('(hover: none)').matches&&!bk.classList.contains('on')){e.preventDefault();document.querySelectorAll('.book.on').forEach(x=>x.classList.remove('on'));bk.classList.add('on');return}
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,art=b.closest('.q');
+  if(a==='open'){art.classList.toggle('open');art.querySelector('.acts [data-act="open"]').textContent=art.classList.contains('open')?'Show less':'Show full question'}
+  else if(a==='star'||a==='done'){const id=art.dataset.id,set=a==='star'?S.star:S.done;set.has(id)?set.delete(id):set.add(id);save();b.setAttribute('aria-pressed',set.has(id));if(a==='done')art.classList.toggle('done',set.has(id));stats();if(a==='star'&&location.hash==='#saved'&&!set.has(id))view()}
+  else if(a==='pill'){UI[b.dataset.k]=b.dataset.v;view()}
+  else if(a==='hide'){UI.hide=!UI.hide;view()}
+  else if(a==='expand'){const qs=[...document.querySelectorAll('.q:not(.short)')],open=qs.some(q=>!q.classList.contains('open'));qs.forEach(q=>{q.classList.toggle('open',open);q.querySelector('.acts [data-act="open"]').textContent=open?'Show less':'Show full question'});b.textContent=open?'Collapse all':'Expand all'}
+  else if(a==='jump'){const t=document.querySelector(`.q[data-qn="${b.dataset.v}"]`);if(t){t.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});t.classList.add('open')}}
+  else if(a==='rand'){location.hash='#random'}
+  else if(a==='again'){view()}
+});
+$('#view').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('.body[data-act]')){e.preventDefault();e.target.click()}});
+$('#view').addEventListener('change',e=>{const f=e.target.dataset.f;if(f){UI[f]=e.target.value;view()}});
+function route(){
+  reset();$('#q').value='';
+  const h=location.hash.slice(1)||'home',m=h.match(/^module-(\d)$/);
+  document.querySelectorAll('nav.tabs a').forEach(a=>{const t=a.dataset.t;a.toggleAttribute('aria-current',false);if(t==='modules'&&/^module/.test(h)||t==='papers'&&/^paper/.test(h)||t==='saved'&&h==='saved')a.setAttribute('aria-current','page')});
+  if(h==='modules')modules();else if(m&&+m[1]>=1&&+m[1]<=M.length)moduleView(+m[1]);else if(h==='papers')papers();else if(h.startsWith('paper-'))paperView(h.slice(6));else if(h==='saved')saved();else if(h==='random')random();else home();
+  view();scrollTo(0,0);
+}
+addEventListener('hashchange',route);route();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+.vercel/
+# keep the original exam PDFs out of the repo
+raw/
+*.pdf
